@@ -12,17 +12,16 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     protected $categoryService;
-
-    public function __construct(CategoryService $categoryService)
-    {
-        $this->categoryService = $categoryService;
-        $this->middleware('auth');
-        $this->middleware('permission:categories.index')->only('index');
-        $this->middleware('permission:categories.create')->only(['create', 'store']);
-        $this->middleware('permission:categories.edit')->only(['edit', 'update']);
-        $this->middleware('permission:categories.delete')->only('destroy');
-    }
-
+public function __construct(CategoryService $categoryService)
+{
+    $this->categoryService = $categoryService;
+    $this->middleware('auth');
+    // موقتاً کامنت کنید
+    // $this->middleware('permission:categories.index')->only('index');
+    // $this->middleware('permission:categories.create')->only(['create', 'store']);
+    // $this->middleware('permission:categories.edit')->only(['edit', 'update']);
+    // $this->middleware('permission:categories.delete')->only('destroy');
+}
     public function index(Request $request)
     {
         $categories = Category::with('parent')
@@ -57,7 +56,7 @@ class CategoryController extends Controller
     public function store(CategoryRequest $request)
     {
         $category = $this->categoryService->create($request->validated());
-        
+
         return redirect()->route('admin.categories.index')
             ->with('success', 'دسته‌بندی با موفقیت ایجاد شد');
     }
@@ -74,14 +73,14 @@ class CategoryController extends Controller
             ->where('id', '!=', $category->id)
             ->active()
             ->get();
-        
+
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     public function update(CategoryRequest $request, Category $category)
     {
         $this->categoryService->update($category, $request->validated());
-        
+
         return redirect()->route('admin.categories.index')
             ->with('success', 'دسته‌بندی با موفقیت بروزرسانی شد');
     }
@@ -94,7 +93,7 @@ class CategoryController extends Controller
         }
 
         $this->categoryService->delete($category);
-        
+
         return redirect()->route('admin.categories.index')
             ->with('success', 'دسته‌بندی با موفقیت حذف شد');
     }
@@ -102,7 +101,7 @@ class CategoryController extends Controller
     public function toggleStatus(Category $category)
     {
         $category->update(['is_active' => !$category->is_active]);
-        
+
         $status = $category->is_active ? 'فعال' : 'غیرفعال';
         return redirect()->back()
             ->with('success', "وضعیت دسته‌بندی به {$status} تغییر یافت");

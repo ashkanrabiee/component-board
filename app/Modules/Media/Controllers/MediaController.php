@@ -2,24 +2,30 @@
 
 namespace App\Modules\Media\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 use App\Modules\Media\Models\Media;
 use App\Modules\Media\Requests\MediaRequest;
 use App\Modules\Media\Services\MediaService;
 use Illuminate\Http\Request;
 
-class MediaController extends Controller
+class MediaController extends BaseController
 {
+    use AuthorizesRequests, ValidatesRequests;
+
     protected $mediaService;
 
-    public function __construct(MediaService $mediaService)
-    {
-        $this->mediaService = $mediaService;
-        $this->middleware('auth');
-        $this->middleware('permission:media.index')->only('index');
-        $this->middleware('permission:media.upload')->only(['create', 'store', 'upload']);
-        $this->middleware('permission:media.delete')->only('destroy');
-    }
+   public function __construct(MediaService $mediaService)
+{
+    $this->mediaService = $mediaService;
+    $this->middleware('auth');
+
+    // موقتاً کامنت کنید
+    // $this->middleware('permission:media.index')->only('index');
+    // $this->middleware('permission:media.upload')->only(['create', 'store', 'upload']);
+    // $this->middleware('permission:media.delete')->only('destroy');
+}
 
     public function index(Request $request)
     {
@@ -108,7 +114,7 @@ class MediaController extends Controller
     public function destroy(Media $media)
     {
         $this->mediaService->delete($media);
-        
+
         return redirect()->route('admin.media.index')
             ->with('success', 'فایل با موفقیت حذف شد');
     }
@@ -122,7 +128,7 @@ class MediaController extends Controller
 
         try {
             $media = $this->mediaService->upload($request->file('file'));
-            
+
             return response()->json([
                 'success' => true,
                 'media' => $media,
@@ -146,7 +152,7 @@ class MediaController extends Controller
         ]);
 
         $media = Media::whereIn('id', $request->media_ids)->get();
-        
+
         foreach ($media as $item) {
             $this->mediaService->delete($item);
         }

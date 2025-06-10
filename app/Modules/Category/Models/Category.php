@@ -5,98 +5,58 @@ namespace App\Modules\Category\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\Post\Models\Post;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
-class PostService
+class Category extends Model
 {
-    public function create(array $data): Post
+    use HasFactory;
+
+    protected $fillable = [
+        'name', 'slug', 'description', 'image', 'color',
+        'parent_id', 'sort_order', 'is_active', 'meta_data'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'meta_data' => 'array',
+    ];
+
+    // Relations
+    public function posts()
     {
-        // تولید slug خودکار
-        if (!isset($data['slug'])) {
-            $data['slug'] = $this->generateSlug($data['title']);
-        }
-
-        // آپلود تصویر شاخص
-        if (isset($data['featured_image'])) {
-            $data['featured_image'] = $this->uploadFeaturedImage($data['featured_image']);
-        }
-
-        // تنظیم تاریخ انتشار
-        if ($data['status'] === 'published' && !isset($data['published_at'])) {
-            $data['published_at'] = now();
-        }
-
-        // تنظیم نویسنده
-        $data['user_id'] = auth()->id();
-
-        $post = Post::create($data);
-
-        // اتصال دسته‌بندی‌ها
-        if (isset($data['categories'])) {
-            $post->categories()->sync($data['categories']);
-        }
-
-        return $post;
+        return $this->belongsToMany(Post::class);
     }
 
-    public function update(Post $post, array $data): Post
+    public function parent()
     {
-        // بروزرسانی slug در صورت تغییر عنوان
-        if (isset($data['title']) && $data['title'] !== $post->title) {
-            $data['slug'] = $this->generateSlug($data['title'], $post->id);
-        }
-
-        // آپلود تصویر جدید
-        if (isset($data['featured_image'])) {
-            if ($post->featured_image) {
-                Storage::disk('public')->delete($post->featured_image);
-            }
-            $data['featured_image'] = $this->uploadFeaturedImage($data['featured_image']);
-        }
-
-        // تنظیم تاریخ انتشار
-        if ($data['status'] === 'published' && $post->status !== 'published') {
-            $data['published_at'] = now();
-        }
-
-        $post->update($data);
-
-        // بروزرسانی دسته‌بندی‌ها
-        if (isset($data['categories'])) {
-            $post->categories()->sync($data['categories']);
-        }
-
-        return $post;
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 
-    public function delete(Post $post): bool
+    public function children()
     {
-        if ($post->featured_image) {
-            Storage::disk('public')->delete($post->featured_image);
-        }
-
-        return $post->delete();
+        return $this->hasMany(Category::class, 'parent_id');
     }
 
-    private function generateSlug(string $title, int $excludeId = null): string
+    // Scopes
+    public function scopeActive($query)
     {
-        $slug = Str::slug($title);
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (Post::where('slug', $slug)->when($excludeId, function($query) use ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        })->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
+        return $query->where('is_active', true);
     }
 
-    private function uploadFeaturedImage($file): string
+    public function scopeParent($query)
     {
-        return $file->store('posts', 'public');
+        return $query->whereNull('parent_id');
+    }
+
+    // Accessors
+    public function getImageUrlAttribute()
+    {
+        return $this->image ?
+            asset('storage/' . $this->image) :
+            asset('images/default-category.png');
+    }
+
+    public function getPostsCountAttribute()
+    {
+        return $this->posts()->count();
     }
 }

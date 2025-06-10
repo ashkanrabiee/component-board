@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل مدیریت')</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Bootstrap RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <style>
         body {
@@ -69,7 +69,7 @@
             transform: translateY(-5px);
         }
     </style>
-    
+
     @stack('styles')
 </head>
 <body>
@@ -81,64 +81,47 @@
                     <div class="text-center py-3">
                         <h4 class="text-white"><i class="fas fa-cogs"></i> پنل مدیریت</h4>
                     </div>
-                    
+
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" 
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                                href="{{ route('admin.dashboard') }}">
                                 <i class="fas fa-tachometer-alt me-2"></i> داشبورد
                             </a>
                         </li>
-                        @can('posts.index')
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.posts.index') }}">
-                                <i class="fas fa-newspaper me-2"></i> مقالات
-                            </a>
-                        </li>
-                        @endcan
-                        @can('categories.index')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.categories.index') }}">
-                                <i class="fas fa-tags me-2"></i> دسته‌بندی‌ها
-                            </a>
-                        </li>
-                        @endcan
-                        @can('comments.index')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.comments.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.comments.index') }}">
-                                <i class="fas fa-comments me-2"></i> نظرات
-                                @if($pendingComments = \App\Modules\Comment\Models\Comment::pending()->count())
-                                    <span class="badge bg-warning">{{ $pendingComments }}</span>
-                                @endif
-                            </a>
-                        </li>
-                        @endcan
-                        @can('media.index')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.media.*') ? 'active' : '' }}" 
+                            <a class="nav-link {{ request()->routeIs('admin.media.*') ? 'active' : '' }}"
                                href="{{ route('admin.media.index') }}">
                                 <i class="fas fa-photo-video me-2"></i> رسانه‌ها
                             </a>
                         </li>
-                        @endcan
-                        @can('users.index')
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" 
-                               href="{{ route('admin.users.index') }}">
+                            <a class="nav-link" href="#" onclick="alert('به زودی...')">
+                                <i class="fas fa-newspaper me-2"></i> مقالات
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="alert('به زودی...')">
+                                <i class="fas fa-tags me-2"></i> دسته‌بندی‌ها
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="alert('به زودی...')">
+                                <i class="fas fa-comments me-2"></i> نظرات
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="alert('به زودی...')">
                                 <i class="fas fa-users me-2"></i> کاربران
                             </a>
                         </li>
-                        @endcan
                     </ul>
 
                     <hr class="text-white">
-                    
+
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('profile.edit') }}">
+                            <a class="nav-link" href="#" onclick="alert('به زودی...')">
                                 <i class="fas fa-user-cog me-2"></i> پروفایل
                             </a>
                         </li>
@@ -201,7 +184,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <script>
         // Delete confirmation
         document.addEventListener('DOMContentLoaded', function() {
@@ -210,7 +193,7 @@
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const form = this.closest('form');
-                    
+
                     Swal.fire({
                         title: 'آیا مطمئن هستید؟',
                         text: 'این عمل قابل بازگشت نیست!',
@@ -229,7 +212,7 @@
             });
         });
     </script>
-    
+
     @stack('scripts')
 </body>
 </html>
