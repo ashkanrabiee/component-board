@@ -19,10 +19,9 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
+   protected $fillable = [
+        'name', 'email', 'username', 'password', 'phone', 
+        'bio', 'avatar', 'status', 'last_login_at'
     ];
 
     /**
@@ -31,8 +30,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
     /**
@@ -43,8 +41,36 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+        'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'password' => 'hashed',
         ];
     }
+
+
+      // Relations
+    public function posts()
+    {
+        return $this->hasMany(\App\Modules\Post\Models\Post::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(\App\Modules\Comment\Models\Comment::class);
+    }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    // Accessors
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar ? 
+            asset('storage/' . $this->avatar) : 
+            asset('images/default-avatar.png');
+    }
+
 }
