@@ -1,8 +1,8 @@
 <?php
+// app/Models/User.php
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,44 +11,24 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable , HasRoles , HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-   protected $fillable = [
+    protected $fillable = [
         'name', 'email', 'username', 'password', 'phone', 
         'bio', 'avatar', 'status', 'last_login_at'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password', 'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
         'password' => 'hashed',
-        ];
-    }
+    ];
 
-
-      // Relations
+    // Relations
     public function posts()
     {
         return $this->hasMany(\App\Modules\Post\Models\Post::class);
@@ -59,10 +39,22 @@ class User extends Authenticatable
         return $this->hasMany(\App\Modules\Comment\Models\Comment::class);
     }
 
+    public function media()
+    {
+        return $this->hasMany(\App\Modules\Media\Models\Media::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    public function scopeAdmins($query)
+    {
+        return $query->whereHas('roles', function($q) {
+            $q->whereIn('name', ['super-admin', 'admin']);
+        });
     }
 
     // Accessors
@@ -73,4 +65,19 @@ class User extends Authenticatable
             asset('images/default-avatar.png');
     }
 
+    public function getIsAdminAttribute()
+    {
+        return $this->hasAnyRole(['super-admin', 'admin']);
+    }
+
+    public function getPostsCountAttribute()
+    {
+        return $this->posts()->count();
+    }
+
+    // Methods
+    public function updateLastLogin()
+    {
+        $this->update(['last_login_at' => now()]);
+    }
 }

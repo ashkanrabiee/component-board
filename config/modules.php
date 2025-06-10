@@ -1,4 +1,5 @@
 <?php
+// config/modules.php
 
 return [
     'modules' => [
@@ -21,6 +22,10 @@ return [
         'Media' => [
             'path' => app_path('Modules/Media'),
             'namespace' => 'App\\Modules\\Media',
+        ],
+        'Dashboard' => [
+            'path' => app_path('Modules/Dashboard'),
+            'namespace' => 'App\\Modules\\Dashboard',
         ],
     ]
 ];
